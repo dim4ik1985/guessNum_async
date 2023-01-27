@@ -1,7 +1,8 @@
-const readline = require('readline/promises');
-// const {stdin: input, stdout: output} = require('process');
-const hiddenNumber = Math.floor(Math.random() * 100) + 1;
+const rl = require('readline').createInterface(process.stdin, process.stdout),
+    hiddenNumber = Math.floor(Math.random() * 100) + 1;
+
 let counter = 0;
+
 console.log(hiddenNumber);
 
 function compare (numUser, numHidden) {
@@ -12,26 +13,28 @@ function compare (numUser, numHidden) {
     }
 }
 
+function question (quest) {
+    return new Promise((resolve, reject) => {
+        rl.question(quest, (data) => {
+            resolve(data);
+        })
+    })
+}
+
 (async () => {
-    const rl = readline.createInterface(process.stdin, process.stdout);
-        const answer = await rl.question('Input number: ');
-        counter++;
-        if (+answer === hiddenNumber) {
-            console.log('Поздравляем!!! Вы угадали с первой попытки!');
-            rl.close();
-        } else {
+        while (true) {
+            const answer = await question('Input number: ');
             counter++;
-            rl.setPrompt(`Неверно, загаданное число ${compare(answer, hiddenNumber)}. Попытка номер: ${counter}\n`);
-            rl.prompt();
-            rl.on('line', (answer) => {
-                if (+answer === hiddenNumber) {
-                    console.log(`Вы угадали! Попытки: ${counter}.`);
-                    rl.close();
-                } else {
-                    counter++;
-                    rl.setPrompt(`Неверно, загаданное число ${compare(answer, hiddenNumber)}. Попытка номер: ${counter}\n`);
-                    rl.prompt();
-                }
-            })
+            if (answer === 'q') {
+                rl.close();
+                break;
+            }
+            if (+answer === hiddenNumber) {
+                console.log(`Поздравляем!!! Вы угадали! Попыток: ${counter}`);
+                rl.close();
+                break;
+            } else {
+                console.log(`Неверно! Загаданное число ${compare(answer, hiddenNumber)}. Попытка: ${counter + 1}`)
+            }
         }
 })()
